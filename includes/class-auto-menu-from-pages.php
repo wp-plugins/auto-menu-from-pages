@@ -113,7 +113,7 @@ class Auto_Menu_From_Pages {
 		$this->slug = 'auto-menu-from-pages';
 		$this->name = __( 'Auto Menu From Pages', 'auto-menu-from-pages' );
 		$this->menu_name = apply_filters( 'amfp_menu_title', $this->name );
-		$this->version = '1.0.0';
+		$this->version = '1.0.1';
 
 		$this->load_dependencies();
 		$this->set_locale();

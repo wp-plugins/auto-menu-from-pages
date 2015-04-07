@@ -4,7 +4,7 @@ Donate link:       http://wordpress.org/plugins/auto-menu-from-pages
 Tags:              auto, automatic, menu, navigation, page, hierarchy
 Requires at least: 3.5
 Tested up to:      4.2
-Stable tag:        1.0.0
+Stable tag:        1.0.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,10 +58,16 @@ At present, no. The menu auto generates based on your page hierarchy, and theref
 
 == Changelog ==
 
+= 1.0.1 =
+* Fix bug causing admin CSS to render on non-menu pages, hiding various elements
+
 = 1.0.0 =
 * First release
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+* Fix bug causing admin CSS to render on non-menu pages, hiding various elements
 
 = 1.0.0 =
 First Release

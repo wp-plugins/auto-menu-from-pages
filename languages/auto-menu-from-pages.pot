@@ -2,26 +2,27 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Auto Menu From Pages 1.0.0\n"
+"Project-Id-Version: Auto Menu From Pages 1.0.1\n"
 "Report-Msgid-Bugs-To: "
 "http://wordpress.org/support/plugin/auto-menu-from-pages\n"
-"POT-Creation-Date: 2015-03-31 23:55:10+00:00\n"
+"POT-Creation-Date: 2015-04-07 23:10:51+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2015-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"X-Generator: grunt-wp-i18n 0.5.0\n"
+"X-Generator: grunt-wp-i18n 0.5.1\n"
 
 #: admin/class-auto-menu-from-pages-admin.php:167
-#: release/1.0.0/auto-menu-from-pages/admin/class-auto-menu-from-pages-admin.php:157
+#: release/1.0.0/auto-menu-from-pages/admin/class-auto-menu-from-pages-admin.php:167
 msgid ""
 "<b>Note:</b> Pages/posts can not be added to this menu, as it is "
 "auto-generated from the existing page hierarchy."
 msgstr ""
 
-#: admin/class-auto-menu-from-pages-admin.php:514
+#: admin/class-auto-menu-from-pages-admin.php:520
+#: release/1.0.0/auto-menu-from-pages/admin/class-auto-menu-from-pages-admin.php:514
 msgid ""
 "\n"
 "\t\t\t\t\t<a href=\"%s\" target=\"_blank\" class=\"logo-link\"><svg "
@@ -446,32 +447,13 @@ msgid ""
 "\t\t\t\t\t"
 msgstr ""
 
-#: admin/class-auto-menu-from-pages-admin.php:779
+#: admin/class-auto-menu-from-pages-admin.php:785
+#: release/1.0.0/auto-menu-from-pages/admin/class-auto-menu-from-pages-admin.php:779
 msgid "Hide from auto menu."
 msgstr ""
 
 #. Plugin Name of the plugin/theme
 msgid "Auto Menu From Pages"
-msgstr ""
-
-#: release/1.0.0/auto-menu-from-pages/admin/class-auto-menu-from-pages-admin.php:504
-msgid ""
-"\n"
-"\t\t\t\t\t<h4>Thank you for activating Auto Menu From Pages!</h4>\n"
-"\t\t\t\t\t<ol>\n"
-"\t\t\t\t\t\t<li>Assign this menu to one of your theme's menu locations just "
-"like any other menu (via the <a href=\"%s\">admin menu editor</a>).</li>\n"
-"\t\t\t\t\t\t<li>Exlude a page from the menu by checking the \"Hide from the "
-"auto menu\" checkbox when editing that page.</li>\n"
-"\t\t\t\t\t\t<li>The menu will automatically update to reflect changes to "
-"your page order/hierarchy.</li>\n"
-"\t\t\t\t\t</ol>\n"
-"\t\t\t\t\t<p><a href=\"%s\">Dismiss Notice</a></p>\n"
-"\t\t\t\t\t"
-msgstr ""
-
-#: release/1.0.0/auto-menu-from-pages/admin/class-auto-menu-from-pages-admin.php:569
-msgid "Hide from the auto menu."
 msgstr ""
 
 #. Plugin URI of the plugin/theme

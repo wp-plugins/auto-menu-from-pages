@@ -438,6 +438,12 @@ class Auto_Menu_From_Pages_Admin {
 	 */
 	public function admin_body_class( $class ) {
 
+		// Don't do anything unless on the menu page.
+		$current_screen = get_current_screen();
+		if ( 'nav-menus' != $current_screen->base ) {
+			return $class;
+		}
+
 		// Explode class into array for easier handling.
 		$class = explode( ' ', $class );
 
