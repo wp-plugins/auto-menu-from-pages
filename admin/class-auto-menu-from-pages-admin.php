@@ -189,7 +189,7 @@ class Auto_Menu_From_Pages_Admin {
 	}
 
 	/**
-	 * Destroy auto menu object.
+	 * Destroy auto menu object (currently not used).
 	 *
 	 * @since  1.0.0
 	 */
@@ -511,8 +511,13 @@ class Auto_Menu_From_Pages_Admin {
 	 */
 	public function admin_notices() {
 
-		global $current_user ;
+		global $current_user, $wp ;
+
+		// Get current user ID.
 		$user_id = $current_user->ID;
+
+		// Get dismiss URL.
+		$dismiss_url = add_query_arg( 'amfp_notice_ignore', 0, $_SERVER['REQUEST_URI'] );
 
 		// Check that the user hasn't already clicked to ignore the message.
 		if ( ! get_user_meta( $user_id, 'amfp_notice_ignore' ) ) {
@@ -727,7 +732,7 @@ class Auto_Menu_From_Pages_Admin {
 				$this->Mm_url,
 				'nav-menus.php?menu=' . $this->get_auto_menu_id(),
 				$this->Mm_url,
-				'?amfp_notice_ignore=0'
+				$dismiss_url
 			);
 
 			echo '<div class="updated mm-notice">' . $notice_message . '</div>';
