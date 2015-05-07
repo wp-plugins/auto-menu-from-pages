@@ -34,7 +34,7 @@ class Auto_Menu_From_Pages_Deactivator {
 		$plugin_admin = Auto_Menu_From_Pages_Admin::get_instance( $plugin );
 
 		// Force destruction of auto menu on deactivation.
-		$plugin_admin->destroy_auto_menu();
+		// $plugin_admin->destroy_auto_menu();
 
 	}
 
