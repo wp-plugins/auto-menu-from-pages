@@ -12,7 +12,7 @@ Automatically generate a navigation menu from your page hierarchy.
 
 == Description ==
 
-**A <a href="http://mightyminnow.com/plugin-landing-page?utm_source=auto-menu-from-pages&utm_medium=plugin-repo&utm_campaign=WordPress%20Plugins">MIGHTYminnow</a> plugin.**
+**A <a href="http://mightyminnow.com/plugin-landing-page?utm_source=auto-menu-from-pages&utm_medium=plugin-repo&utm_campaign=WordPress%20Plugins">MIGHTYminnow</a> plugin. Enjoy? Consider [leaving a 5-star review](https://wordpress.org/support/view/plugin-reviews/auto-menu-from-pages).**
 
 Auto Menu From Pages generates a WordPress navigation menu that matches your page order and hierarchy. Simply click the **Sync Auto Menu** link in the admin bar to update the auto menu and reflect any changes you make to your pages so it is always current.
 
