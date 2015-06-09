@@ -35,8 +35,8 @@ class Auto_Menu_From_Pages_Activator {
 
 		// Force initial menu creation/update run.
 		$plugin_admin->create_auto_menu();
-		$plugin_admin->update_menu_items();
-		
+		$plugin_admin->maybe_sync_auto_menu();
+
 		// Add plugin activation option for redirect.
 		add_option( $plugin->get( 'slug' ) . '_activated', true );
 

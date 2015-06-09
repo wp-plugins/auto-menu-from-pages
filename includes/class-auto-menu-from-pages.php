@@ -166,6 +166,8 @@ class Auto_Menu_From_Pages {
 
 		$this->loader = new Auto_Menu_From_Pages_Loader();
 
+		add_filter( 'amfp_auto_sync_menu', '__return_true' );
+
 	}
 
 	/**
@@ -206,14 +208,18 @@ class Auto_Menu_From_Pages {
 		// Add functionality to dismiss notice.
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'dismiss_notice' );
 
-		// Enqueue admin scripts and styles.
+		// Enqueue admin scripts and styles - both front- and back- end since it affects the admin bar.
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
 		// Add body class to distinguish auto menu admin page.
 		$this->loader->add_action( 'admin_body_class', $plugin_admin, 'admin_body_class' );
 
 		// Do admin notices.
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'admin_notices' );
+
+		// Create admin bar link.
+		$this->loader->add_action( 'admin_bar_menu', $plugin_admin, 'create_admin_bar_link', 999 );
 
 		// Filter admin menu walker to prevent output in menu editor.
 		$this->loader->add_filter( 'wp_edit_nav_menu_walker', $plugin_admin, 'filter_auto_menu_walker_to_hide', 10, 2 );
@@ -222,8 +228,18 @@ class Auto_Menu_From_Pages {
 		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'add_metabox' );
 		$this->loader->add_action( 'save_post', $plugin_admin, 'save_metabox' );
 
-		// Update auto menu as last thing before admin sessions ends.
-		$this->loader->add_action( 'shutdown', $plugin_admin, 'update_menu_items', 15 ); // Load after Exclude Pages plugin.
+		// Synch menu via AJAX.
+		$this->loader->add_action( 'wp_ajax_sync_auto_menu', $plugin_admin, 'force_sync_auto_menu' );
+
+		/**
+		 * Auto sync menu on shutdown.
+		 *
+		 * By default, this feature is turned off, and can be enabled via the
+		 * amfp_auto_sync_menu filter.
+		 */
+		if ( is_admin() && apply_filters( 'amfp_auto_sync_menu', false ) ) {
+			$this->loader->add_action( 'shutdown', $plugin_admin, 'maybe_sync_auto_menu', 15 ); // Load after Exclude Pages plugin.
+		}
 
 	}
 

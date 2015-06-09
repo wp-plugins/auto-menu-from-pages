@@ -150,23 +150,33 @@ class Auto_Menu_From_Pages_Admin {
 	 */
 	public function enqueue_scripts( $hook ) {
 
-		// Admin styles.
+		// Only proceed if user is logged in.
+		if ( ! is_user_logged_in() ) {
+			return;
+		}
+
+		// Enqueue admin styles if and only if user is logged in and viewing admin bar.
 		wp_enqueue_style( $this->plugin_slug, plugin_dir_url( __FILE__ ) . 'css/auto-menu-from-pages-admin.css', array(), $this->version, 'all' );
+
+		// Admin scripts.
+		wp_enqueue_script( $this->plugin_slug, plugin_dir_url( __FILE__ ) . 'js/auto-menu-from-pages-admin.js', array( 'jquery' ), $this->version, false );
 
 		// Only enqueue scripts on the nav menus page.
 		if ( 'nav-menus.php' == $hook ) {
 
-			// Admin scripts.
-			wp_enqueue_script( $this->plugin_slug, plugin_dir_url( __FILE__ ) . 'js/auto-menu-from-pages-admin.js', array( 'jquery' ), $this->version, false );
+			// Pass description message to JS for admin menu screen.
+			$php_admin_variables = array(
+				'menu_title' => $this->plugin->get( 'menu_name' ),
+				'menu_desc_text' => __( '<b>Note:</b> Pages/posts can not be added to this menu, as it is auto-generated from the existing page hierarchy.', 'auto-menu-from-pages' ),
+			);
+			wp_localize_script( $this->plugin_slug, 'amfpVars', $php_admin_variables );
 
 		}
 
-		// Pass description message to JS for admin menu screen.
-		$php_admin_variables = array(
-			'menu_title' => $this->plugin->get( 'menu_name' ),
-			'menu_desc_text' => __( '<b>Note:</b> Pages/posts can not be added to this menu, as it is auto-generated from the existing page hierarchy.', 'auto-menu-from-pages' ),
-		);
-		wp_localize_script( $this->plugin_slug, 'amfpVars', $php_admin_variables );
+		// Manually pass ajaxurl to front-end.
+		if ( ! is_admin() ) {
+			wp_localize_script( $this->plugin_slug, 'ajaxurl', admin_url( 'admin-ajax.php' ) );
+		}
 
 	}
 
@@ -207,15 +217,31 @@ class Auto_Menu_From_Pages_Admin {
 	}
 
 	/**
-	 * Filter in menu items auto-generated from page hierarchy.
+	 * Force sync auto menu.
+	 *
+	 * @since  1.1.0
+	 */
+	public function force_sync_auto_menu() {
+
+		// Fire action to force sync in maybe_sync_auto_menu.
+		do_action( 'amfp_force_sync' );
+
+		// Fire actual update function.
+		$this->maybe_sync_auto_menu();
+
+	}
+
+	/**
+	 * Sync auto menu if certain actions have fired.
 	 *
 	 * @since  1.0.0
 	 */
-	public function update_menu_items() {
+	public function maybe_sync_auto_menu() {
 
 		// Define actions that warrant rebuilding the menu.
 		$trigger_actions = array(
 			'amfp_force_update',
+			'amfp_force_sync',
 			'save_post',
 			'updated_option',
 			'load-pages_page_mypageorder', // My Page Order plugin
@@ -233,7 +259,7 @@ class Auto_Menu_From_Pages_Admin {
 		}
 
 		// Only run if something changed on this load.
-		if ( ! $update_menu) {
+		if ( ! $update_menu ) {
 			return;
 		}
 
@@ -333,6 +359,11 @@ class Auto_Menu_From_Pages_Admin {
 			}
 
 
+		}
+
+		// Die properly if called via AJAX.
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			wp_die();
 		}
 
 	}
@@ -725,7 +756,7 @@ class Auto_Menu_From_Pages_Admin {
 					<ol>
 						<li>Assign this menu to one of your theme\'s menu locations just like any other menu (via the <a href="%s">admin menu editor</a>).</li>
 						<li>Exlude a page from the menu by checking the "Hide from the auto menu" checkbox when editing that page.</li>
-						<li>The menu will automatically update to reflect changes to your page order/hierarchy.</li>
+						<li>Click the <span class="dashicons dashicons-update"></span> <b>Sync Auto Menu</b> link in the admin bar to sync the menu after making changes to your pages.</li>
 					</ol>
 					<p><a href="%s" target="_blank">MIGHTYminnow Plugins</a> | <a href="%s">Dismiss Notice</a></p>
 					', 'auto-menu-from-pages' ),
@@ -737,6 +768,26 @@ class Auto_Menu_From_Pages_Admin {
 
 			echo '<div class="updated mm-notice">' . $notice_message . '</div>';
 		}
+
+	}
+
+	/**
+	 * Generate sync link in the admin bar.
+	 *
+	 * @since    1.1.0
+	 *
+	 * @param    WP_Admin_Bar    $wp_admin_bar    Admin bar object.
+	 */
+	public function create_admin_bar_link( $wp_admin_bar ) {
+
+		// Set up args for adding the admin menu item.
+		$args = array(
+			'id'    => 'sync_auto_menu',
+			'title' => '<span class="ab-icon"></span> <span class="ab-label">' . __( 'Sync Auto Menu', 'auto-menu-from-pages' ) . '</span>',
+			'href'  => add_query_arg( 'sync_auto_menu', 'sync', $_SERVER['REQUEST_URI'] ),
+		);
+
+		$wp_admin_bar->add_menu( $args );
 
 	}
 
@@ -762,6 +813,11 @@ class Auto_Menu_From_Pages_Admin {
 
 	}
 
+	/**
+	 * Add custom metabox.
+	 *
+	 * @since    1.0.0
+	 */
 	public function add_metabox() {
 
 		add_meta_box(
@@ -772,8 +828,16 @@ class Auto_Menu_From_Pages_Admin {
 			'side',
 			'low'
 		);
+
 	}
 
+	/**
+	 * Output custom metabox.
+	 *
+	 * @since    1.0.0
+	 *
+	 * @param    WP_Post    $post    Current post.
+	 */
 	public function metabox_callback( $post ) {
 
 		// Add an nonce field so we can check for it later.
@@ -789,8 +853,16 @@ class Auto_Menu_From_Pages_Admin {
 		echo '<input type="checkbox" id="amfp_exclude_from_menu" name="amfp_exclude_from_menu" value="1" ' . checked( $value, 1, false ) . ' /> ';
 		_e( 'Hide from auto menu.', 'auto-menu-from-pages' );
 		echo '</label> ';
+
 	}
 
+	/**
+	 * Save per-page metabox data.
+	 *
+	 * @since    1.0.0
+	 *
+	 * @param    int    $post_id    ID of the current post.
+	 */
 	public function save_metabox( $post_id ) {
 
 		/*

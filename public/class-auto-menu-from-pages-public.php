@@ -73,13 +73,13 @@ class Auto_Menu_From_Pages_Public {
      * @return    Auto_Menu_From_Pages_Public    A single instance of this class.
      */
     public static function get_instance( $plugin ) {
- 
+
         if ( null == self::$instance ) {
             self::$instance = new self( $plugin );
         }
- 
+
         return self::$instance;
- 
+
     }
 
 	/**

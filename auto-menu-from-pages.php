@@ -16,7 +16,7 @@
  * Plugin Name:       Auto Menu From Pages
  * Plugin URI:        http://wordpress.org/plugins/auto-menu-from-pages
  * Description:       Automatically generate a navigation menu from your page hierarchy.
- * Version:           1.0.2
+ * Version:           1.1.0
  * Author:            MIGHTYminnow
  * Author URI:        http://mightyminnow.com/plugin-landing-page?utm_source=auto-menu-from-pages&utm_medium=plugin-repo&utm_campaign=WordPress%20Plugins
  * License:           GPL-2.0+
@@ -74,7 +74,12 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-auto-menu-from-pages.php';
  */
 function run_auto_menu_from_pages() {
 
-	$plugin = new Auto_Menu_From_Pages();
+	// Pass main plugin file through to plugin class for later use.
+	$args = array(
+		'plugin_file' => __FILE__,
+	);
+
+	$plugin = Auto_Menu_From_Pages::get_instance( $args );
 	$plugin->run();
 
 }
