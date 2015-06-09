@@ -28,9 +28,8 @@ The auto menu works just like any other WordPress navigation menu, meaning that 
 = Enabling Auto-Syncing =
 This plugin has the ability to automatically sync your menu after pages are modified, however the feature is turned off by default as it can create significant overhead. To turn it on, use the provided `amfp_auto_sync_menu` filter and set it to true, like so:
 
-```
-add_filter( 'amfp_auto_sync_menu', '__return_true' );
-```
+	add_filter( 'amfp_auto_sync_menu', '__return_true' );
+
 
 == Installation ==
 
@@ -44,7 +43,7 @@ add_filter( 'amfp_auto_sync_menu', '__return_true' );
 
 = How does the menu work? =
 
-The menu takes your hierarchy of pages and creates a nav menu item for each page. Every time you make a change to your site that affects your pages, the menu will automatically edit these nav menu items to reflect that change.
+The menu takes your hierarchy of pages and creates a nav menu item for each page. Every time you make a change to the pages on your site, simply click the **Sync Auto Menu** link in the admin bar to update your menu. Alternately, you can use the provided `amfp_auto_sync_menu` filter (just return true) to turn on auto-syncing, however this can create significant overhead.
 
 = Can I exclude pages from the auto menu? =
 
