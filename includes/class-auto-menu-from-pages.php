@@ -166,8 +166,6 @@ class Auto_Menu_From_Pages {
 
 		$this->loader = new Auto_Menu_From_Pages_Loader();
 
-		add_filter( 'amfp_auto_sync_menu', '__return_true' );
-
 	}
 
 	/**

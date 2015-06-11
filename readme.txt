@@ -4,7 +4,7 @@ Donate link:       http://wordpress.org/plugins/auto-menu-from-pages
 Tags:              auto, automatic, menu, navigation, page, hierarchy
 Requires at least: 3.5
 Tested up to:      4.3
-Stable tag:        1.1.0
+Stable tag:        1.1.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,6 +64,9 @@ At present, no. The menu auto generates based on your page hierarchy, and theref
 
 == Changelog ==
 
+= 1.1.1 =
+* Remove testing filter that was setting auto-syncing to on by default.
+
 = 1.1.0 =
 * Switch to manual Sync Auto Menu link in the admin bar.
 * Turn off auto-syncing feature by default, add `amfp_auto_sync_menu` filter to turn it on for development.
@@ -79,6 +82,9 @@ At present, no. The menu auto generates based on your page hierarchy, and theref
 * First release
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+* Remove testing filter that was setting auto-syncing to on by default.
 
 = 1.1.0 =
 * Switch to manual Sync Auto Menu link in the admin bar.
