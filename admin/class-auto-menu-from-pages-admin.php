@@ -118,7 +118,7 @@ class Auto_Menu_From_Pages_Admin {
 		$this->Mm_url = '//mightyminnow.com/plugin-landing-page?utm_source=' . $this->plugin_slug . '&utm_medium=plugin&utm_campaign=WordPress%20Plugins';
 
 		// Get highest post ID in database.
-		$highest_id_array = $wpdb->get_col( "SELECT max(ID) FROM wp_posts" );
+		$highest_id_array = $wpdb->get_col( "SELECT max(ID) FROM $wpdb->posts" );
 		$this->highest_db_post_id = $highest_id_array[0];
 
 	}
@@ -223,11 +223,8 @@ class Auto_Menu_From_Pages_Admin {
 	 */
 	public function force_sync_auto_menu() {
 
-		// Fire action to force sync in maybe_sync_auto_menu.
-		do_action( 'amfp_force_sync' );
-
 		// Fire actual update function.
-		$this->maybe_sync_auto_menu();
+		$this->maybe_sync_auto_menu( true );
 
 	}
 
@@ -236,31 +233,35 @@ class Auto_Menu_From_Pages_Admin {
 	 *
 	 * @since  1.0.0
 	 */
-	public function maybe_sync_auto_menu() {
+	public function maybe_sync_auto_menu( $sync = false ) {
 
-		// Define actions that warrant rebuilding the menu.
-		$trigger_actions = array(
-			'amfp_force_update',
-			'amfp_force_sync',
-			'save_post',
-			'updated_option',
-			'load-pages_page_mypageorder', // My Page Order plugin
-		);
+		// If the $sync flag is there, proceed directly to building the menu,
+		// otherwise check whether one of our trigger actions has fired.
+		if ( ! $sync ) {
 
-		// Check if any have been triggered.
-		$update_menu = false;
-		foreach ( $trigger_actions as $action ) {
+			// Define actions that warrant rebuilding the menu.
+			$trigger_actions = array(
+				'amfp_force_update',
+				'amfp_force_sync',
+				'save_post',
+				'updated_option',
+				'load-pages_page_mypageorder', // My Page Order plugin
+			);
 
-			if ( did_action( $action ) ) {
-				$update_menu = true;
-				break;
+			// Check if any have been triggered.
+			$update_menu = false;
+			foreach ( $trigger_actions as $action ) {
+
+				if ( did_action( $action ) ) {
+					$update_menu = true;
+					break;
+				}
 			}
 
-		}
-
-		// Only run if something changed on this load.
-		if ( ! $update_menu ) {
-			return;
+			// Only run if something changed on this load.
+			if ( ! $update_menu ) {
+				return;
+			}
 		}
 
 		// Get auto menu ID.
@@ -269,7 +270,7 @@ class Auto_Menu_From_Pages_Admin {
 		// Get saved auto menu items.
 		$menu = wp_get_nav_menu_object( $auto_menu_id );
 
-		// Exit if the menu doesn't exist (edge case after deactivation)
+		// Exit if the menu doesn't exist (edge case after deactivation).
 		if ( empty( $menu->term_id ) ) {
 			return false;
 		}
@@ -307,13 +308,19 @@ class Auto_Menu_From_Pages_Admin {
 				continue;
 			}
 
-			// Setup menu item database ID based on post ID.
+			// Set up menu item database ID based on post ID.
 			$menu_item_db_id = $this->get_page_auto_menu_item_id( $page->ID );
 
 			// Set up menu item parent database ID.
 			$parent_menu_item_db_id = 0;
+
+			// If the post has a parent, ensure we have a menu item ID for the parent.
 			if ( $page->post_parent ) {
+
 				$parent_menu_item_db_id = $this->get_page_auto_menu_item_id( $page->post_parent );
+
+				// If the parent menu item hasn't already been created, create it now.
+				$this->create_new_nav_menu_item( $parent_menu_item_db_id );
 			}
 
 			// Set up menu item args from page.
@@ -326,19 +333,11 @@ class Auto_Menu_From_Pages_Admin {
 				'menu-item-status'    => 'publish',
 			);
 
-			if ( ! is_nav_menu_item( $menu_item_db_id ) ) {
-				$temp_menu_item_post = array(
-					'import_id' => $menu_item_db_id, // Parameter used to force specific ID of new post.
-					'post_type' => 'nav_menu_item',
-				);
-
-				wp_insert_post( $temp_menu_item_post );
-			}
+			$this->create_new_nav_menu_item( $menu_item_db_id );
 
 			$item = wp_update_nav_menu_item( $auto_menu_id, $menu_item_db_id, $args );
 
 			$i++;
-
 		}
 
 		// Get all non-excluded page ID's.
@@ -357,8 +356,6 @@ class Auto_Menu_From_Pages_Admin {
 			) {
 				wp_delete_post( $menu_item_id );
 			}
-
-
 		}
 
 		// Die properly if called via AJAX.
@@ -366,6 +363,25 @@ class Auto_Menu_From_Pages_Admin {
 			wp_die();
 		}
 
+	}
+
+	/**
+	 * Create a new 'nav_menu_item' post using the specified ID.
+	 *
+	 * @since  1.3.0
+	 *
+	 * @param  int  $menu_item_id  The menu item ID.
+	 */
+	public function create_new_nav_menu_item( $menu_item_id ) {
+
+		if ( ! is_nav_menu_item( $menu_item_id ) ) {
+			$menu_item_post = array(
+				'import_id' => $menu_item_id, // Parameter used to force specific ID of new post.
+				'post_type' => 'nav_menu_item',
+			);
+
+			wp_insert_post( $menu_item_post );
+		}
 	}
 
 	/**
@@ -410,17 +426,23 @@ class Auto_Menu_From_Pages_Admin {
 	 */
 	public function get_page_auto_menu_item_id( $page_id ) {
 
-		global $wpdb;
-
 		// Check if page already has assigned menu item.
-		$menu_item_id = get_post_meta( $page_id, 'auto_menu_item_id', true );
-		if ( $menu_item_id ) {
+		$menu_item_id = get_post_meta( $page_id, '_amfp_menu_item_id', true );
+
+		// Get object id (post it points to) of menu item.
+		$menu_item_object_id = get_post_meta( $menu_item_id, '_menu_item_object_id', true );
+
+		/**
+		 * If we already have a valid menu item ID, and it's points to
+		 * this post, then return it.
+		 */
+		if ( $menu_item_id && is_nav_menu_item( $menu_item_id ) && $menu_item_object_id == $page_id ) {
 			return $menu_item_id;
 		}
 
 		/**
-		 * If no menu item is set, then generate a new menu item ID by
-		 * incrementing the highest post ID in the database by one.
+		 * If no menu item is set or the value isn't good, generate a new menu item
+		 * ID by incrementing the highest post ID in the database by one.
 		 */
 
 		// Make sure ID isn't already taken.
@@ -431,7 +453,7 @@ class Auto_Menu_From_Pages_Admin {
 		$menu_item_id = ++$this->highest_db_post_id;
 
 		// Add post meta to hold ID of associated menu item.
-		add_post_meta( $page_id, 'auto_menu_item_id', $menu_item_id );
+		update_post_meta( $page_id, '_amfp_menu_item_id', $menu_item_id );
 
 		return $menu_item_id;
 
